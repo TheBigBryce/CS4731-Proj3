@@ -132,12 +132,12 @@
             vec3 cameraDirection = ray.direction;
             vec3 lightSource = light.position;
             float ambience = light.ambience;
+            vec3 specular = light.specular;
 
             vec3 surfacePoint = cameraSource + (minT * cameraDirection);
             vec3 surfaceNormal = normalize(surfacePoint - sphereCenter);
-            color = colorOfSphere * (ambience + ((1.0 - ambience) * max(0.0, dot(surfaceNormal, lightSource))));
 
-            rayTracer.color = color;
+
 
 
             Ray reflectionRay;
@@ -145,6 +145,12 @@
             reflectionRay.origin = surfacePoint - 0.0001 * surfaceNormal;
             reflectionRay.direction = reflection;
             rayTracer.reflectedRay = reflectionRay;
+
+            vec3 surfaceToRay = normalize(surfacePoint - ray.origin);
+            vec3 reflectedSpecular = reflect(normalize(lightSource-surfacePoint), surfaceNormal);
+
+            color = colorOfSphere * (ambience + ((1.0 - ambience) * max(0.0, dot(surfaceNormal, lightSource))));
+            rayTracer.color = color + (pow(max(dot(reflectedSpecular, surfaceToRay), 0.0), 15.0) * specular);
          }
          else {
             rayTracer.color = color;
